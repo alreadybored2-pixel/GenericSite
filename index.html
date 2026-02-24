@@ -5,16 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Render Site</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
-        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
-        h1 { color: #333; }
-        p { color: #666; }
+        /* Removes default browser spacing so the bar sits flush at the top */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f9f9f9; /* A clean, slightly off-white background */
+        }
+
+        /* The Top Bar */
+        .top-bar {
+            background-color: #ffffff; /* White background for the bar */
+            height: 60px;              /* How tall the bar is */
+            display: flex;
+            align-items: center;       /* Centers the logo vertically */
+            padding: 0 20px;           /* Gives some space on the left and right */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adds a subtle shadow under the bar */
+        }
+
+        /* The Logo */
+        .logo {
+            height: 40px; /* Adjust this number to make your logo bigger or smaller */
+            width: auto;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Hello from Render!</h1>
-        <p>Your site <strong>genericsite-net</strong> is now live.</p>
+
+    <div class="top-bar">
+       <img src="LOGO.png" alt="Generic Site Logo" class="logo">
     </div>
-</body>
+
+    </body>
 </html>
