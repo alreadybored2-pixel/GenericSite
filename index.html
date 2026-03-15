@@ -3,38 +3,485 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Render Site</title>
+    <title>Generic Website</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
     <style>
-        /* Removes default browser spacing so the bar sits flush at the top */
+        /* --- 1. BASE GENERIC STYLES --- */
+        :root {
+            --bg: #ffffff;
+            --text: #333333;
+            --accent: #0070f3;
+        }
+
         body, html {
             margin: 0;
             padding: 0;
-            font-family: sans-serif;
-            background-color: #f9f9f9; /* A clean, slightly off-white background */
+            width: 100%;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden; /* Keep the game contained */
         }
 
-        /* The Top Bar */
-        .top-bar {
-            background-color: #ffffff; /* White background for the bar */
-            height: 60px;              /* How tall the bar is */
+        .generic-nav {
+            padding: 20px 5%;
+            border-bottom: 1px solid #ddd;
             display: flex;
-            align-items: center;       /* Centers the logo vertically */
-            padding: 0 20px;           /* Gives some space on the left and right */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adds a subtle shadow under the bar */
+            justify-content: space-between;
+            font-weight: bold;
         }
 
-        /* The Logo */
-        .logo {
-            height: 40px; /* Adjust this number to make your logo bigger or smaller */
-            width: auto;
+        .generic-hero {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .generic-box-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .generic-box {
+            width: 200px;
+            height: 150px;
+            border: 1px solid #ccc;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- 2. MODAL POP-UP STYLES --- */
+        #introModalOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .intro-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .intro-modal img {
+            max-width: 120px;
+            margin-bottom: 20px;
+        }
+
+        .intro-modal p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .modal-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            min-height: 50px;
+        }
+
+        #acceptBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        #acceptBtn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .checkbox-container {
+            display: none; /* Hidden until timer ends */
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            cursor: pointer;
+        }
+
+
+        /* --- 3. GLITCH & SHAKE EFFECTS --- */
+        .glitch-active {
+            animation: extremeShake 0.1s infinite, invertColors 0.5s infinite;
+        }
+
+        @keyframes extremeShake {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        @keyframes invertColors {
+            0% { filter: invert(0) hue-rotate(0deg); }
+            50% { filter: invert(1) hue-rotate(180deg); }
+            100% { filter: invert(0) hue-rotate(360deg); }
+        }
+
+        .level-shake {
+            animation: subtleShake 0.5s infinite;
+        }
+
+        @keyframes subtleShake {
+            0% { transform: translate(1px, 1px); }
+            50% { transform: translate(-1px, -1px); }
+            100% { transform: translate(1px, 1px); }
+        }
+
+        /* --- 4. OVERLAYS --- */
+        #glassOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            background: radial-gradient(circle, transparent 20%, rgba(255,255,255,0.8) 25%, transparent 30%),
+                        linear-gradient(45deg, transparent 48%, white 50%, transparent 52%),
+                        linear-gradient(-45deg, transparent 48%, white 50%, transparent 52%);
+            background-size: 100% 100%;
+        }
+
+        .glass-break {
+            animation: shatter 0.5s forwards;
+        }
+
+        @keyframes shatter {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.5); }
+        }
+
+        #matrixCanvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        /* --- 5. GAME ELEMENTS --- */
+        .game-entity {
+            position: absolute;
+            will-change: transform;
+        }
+
+        #redBall {
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle at 15px 15px, #ff4d4d, #cc0000);
+            border-radius: 50%;
+            border: 2px solid #800000;
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 500;
+        }
+
+        .platform-text {
+            font-size: 3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            background: #111;
+            padding: 10px 20px;
+            border: 2px solid #0f0;
+            box-shadow: 0 0 10px #0f0;
+            display: none;
+            text-align: center;
+            z-index: 400;
         }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-       <img src="LOGO.png" alt="Generic Site Logo" class="logo">
+    <div id="introModalOverlay">
+        <div class="intro-modal">
+            <img src="LOGO.png" alt="Website Logo">
+            <p>For every button clicked you generate an image. With the goal of generating 1000 to earn a secret achievement, like Cookie Clicker for AI.</p>
+            
+            <div class="modal-controls">
+                <button id="acceptBtn" disabled>Wait 2s...</button>
+                <label class="checkbox-container" id="checkboxContainer">
+                    <input type="checkbox" id="understandCheckbox">
+                    I Understand and have read all.
+                </label>
+            </div>
+        </div>
     </div>
 
-    </body>
+    <canvas id="matrixCanvas"></canvas>
+
+    <div id="wrapper">
+        <nav class="generic-nav dom-target">
+            <span>Generic Website</span>
+            <span>Home | About | Contact</span>
+        </nav>
+        
+        <header class="generic-hero dom-target">
+            <h1>Welcome to the Generic Website</h1>
+            <p>This is a perfectly normal place. Nothing bad will happen here.</p>
+        </header>
+
+        <div class="generic-box-container">
+            <div class="generic-box dom-target">Info Box 1</div>
+            <div class="generic-box dom-target">Info Box 2</div>
+            <div class="generic-box dom-target">Info Box 3</div>
+        </div>
+    </div>
+
+    <div id="glassOverlay"></div>
+
+    <div id="redBall" class="game-entity"></div>
+    <div id="plat1" class="game-entity platform-text">CHAPTER ONE</div>
+    <div id="plat2" class="game-entity platform-text">USE WASD</div>
+    <div id="plat3" class="game-entity platform-text">TO SURVIVE</div>
+
+    <script>
+        // --- MODAL & INITIALIZATION LOGIC ---
+        const modalOverlay = document.getElementById('introModalOverlay');
+        const acceptBtn = document.getElementById('acceptBtn');
+        const checkboxContainer = document.getElementById('checkboxContainer');
+        const understandCheckbox = document.getElementById('understandCheckbox');
+
+        let secondsLeft = 2;
+
+        // 2 Second Timer for the button
+        const timer = setInterval(() => {
+            secondsLeft--;
+            if (secondsLeft > 0) {
+                acceptBtn.innerText = `Wait ${secondsLeft}s...`;
+            } else {
+                clearInterval(timer);
+                acceptBtn.style.display = 'none'; // Hide button temporarily
+                checkboxContainer.style.display = 'flex'; // Show checkbox
+            }
+        }, 1000);
+
+        // Checkbox listener
+        understandCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                acceptBtn.innerText = 'Proceed';
+                acceptBtn.disabled = false;
+                acceptBtn.style.display = 'block';
+            } else {
+                acceptBtn.disabled = true;
+            }
+        });
+
+        // Close modal and start the chaos
+        acceptBtn.addEventListener('click', () => {
+            modalOverlay.style.display = 'none';
+            setTimeout(triggerGlitch, 5000); // Start the 5s timeline sequence NOW
+        });
+
+
+        // --- TIMELINE SEQUENCE ---
+        function triggerGlitch() {
+            // 1. Start Shaking & Inverting
+            document.body.classList.add('glitch-active');
+            
+            // 2. Glass Break (0.5s later)
+            setTimeout(() => {
+                document.getElementById('glassOverlay').classList.add('glass-break');
+            }, 500);
+
+            // 3. Matrix Rain (1s later)
+            setTimeout(() => {
+                document.getElementById('matrixCanvas').style.opacity = '1';
+                startMatrixRain();
+            }, 1000);
+
+            // 4. Parallax Drop & Game Start (2s later)
+            setTimeout(() => {
+                document.body.classList.remove('glitch-active');
+                document.body.classList.add('level-shake'); // Switch to subtle level shake
+                startGamePhase();
+            }, 2000);
+        }
+
+        // --- MATRIX RAIN EFFECT ---
+        function startMatrixRain() {
+            const canvas = document.getElementById('matrixCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+            const fontSize = 16;
+            const columns = canvas.width / fontSize;
+            const drops = Array(Math.floor(columns)).fill(1);
+
+            setInterval(() => {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#0F0';
+                ctx.font = fontSize + 'px monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                    drops[i]++;
+                }
+            }, 33);
+        }
+
+        // --- PHASE 2: PHYSICS GAME ---
+        function startGamePhase() {
+            const Engine = Matter.Engine,
+                  Runner = Matter.Runner,
+                  Bodies = Matter.Bodies,
+                  Body = Matter.Body,
+                  Composite = Matter.Composite;
+
+            const engine = Engine.create();
+            // Lower gravity initially for parallax floaty effect
+            engine.world.gravity.y = 0.2; 
+            
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            let bodiesMap = []; // Maps DOM elements to Matter bodies
+
+            // 1. Drop the Generic UI (Parallax fall)
+            const targets = document.querySelectorAll('.dom-target');
+            targets.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                el.style.position = 'absolute';
+                el.style.width = rect.width + 'px';
+                el.style.height = rect.height + 'px';
+                el.style.margin = '0';
+                
+                const body = Bodies.rectangle(
+                    rect.left + rect.width / 2, 
+                    rect.top + rect.height / 2, 
+                    rect.width, 
+                    rect.height,
+                    { 
+                        restitution: 0.2, 
+                        frictionAir: Math.random() * 0.05 + 0.01 // Parallax different fall speeds
+                    } 
+                );
+                
+                // Nudge them so they tumble
+                Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.1);
+                Composite.add(engine.world, body);
+                bodiesMap.push({ el, body });
+            });
+
+            // 2. Spawn "CHAPTER ONE" Platforms after 2 seconds
+            setTimeout(() => {
+                engine.world.gravity.y = 1; // Return gravity to normal
+                
+                const platforms = [
+                    { id: 'plat1', x: w/2 - 200, y: h - 100, width: 350, height: 60 },
+                    { id: 'plat2', x: w/2 + 250, y: h - 250, width: 250, height: 60 },
+                    { id: 'plat3', x: w/2 - 350, y: h - 400, width: 300, height: 60 }
+                ];
+
+                platforms.forEach(p => {
+                    const el = document.getElementById(p.id);
+                    el.style.display = 'block';
+                    el.style.width = p.width + 'px';
+                    el.style.height = p.height + 'px';
+                    
+                    const body = Bodies.rectangle(p.x, p.y, p.width, p.height, { isStatic: true });
+                    Composite.add(engine.world, body);
+                    bodiesMap.push({ el, body });
+                });
+
+                // Spawn Red Ball
+                spawnRedBall();
+            }, 2000);
+
+            // 3. The Red Ball & WASD Controls
+            let ballBody;
+            function spawnRedBall() {
+                const ballEl = document.getElementById('redBall');
+                ballEl.style.display = 'block';
+                
+                // Red Ball 4 physics: Bouncy, good friction
+                ballBody = Bodies.circle(w/2 - 200, -50, 20, {
+                    restitution: 0.6,
+                    friction: 0.05,
+                    density: 0.04
+                });
+                
+                Composite.add(engine.world, ballBody);
+                bodiesMap.push({ el: ballEl, body: ballBody });
+                setupControls();
+            }
+
+            function setupControls() {
+                const keys = {};
+                window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+                window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+                // Game Loop for Controls
+                Matter.Events.on(engine, 'beforeUpdate', () => {
+                    if (!ballBody) return;
+                    const speed = 0.02;
+                    
+                    if (keys['a']) Body.applyForce(ballBody, ballBody.position, { x: -speed, y: 0 });
+                    if (keys['d']) Body.applyForce(ballBody, ballBody.position, { x: speed, y: 0 });
+                    
+                    // Jump (W) - Only if roughly moving slowly on Y axis (pseudo-ground check)
+                    if (keys['w'] && Math.abs(ballBody.velocity.y) < 0.5) {
+                        Body.applyForce(ballBody, ballBody.position, { x: 0, y: -0.25 });
+                        keys['w'] = false; // Prevent holding jump
+                    }
+                });
+            }
+
+            // Sync DOM with Physics
+            function updateDOM() {
+                bodiesMap.forEach(item => {
+                    const pos = item.body.position;
+                    const angle = item.body.angle;
+                    const hw = item.el.offsetWidth / 2;
+                    const hh = item.el.offsetHeight / 2;
+                    item.el.style.transform = `translate(${pos.x - hw}px, ${pos.y - hh}px) rotate(${angle}rad)`;
+                });
+                requestAnimationFrame(updateDOM);
+            }
+
+            // Start Engine
+            Runner.run(Runner.create(), engine);
+            requestAnimationFrame(updateDOM);
+        }
+    </script>
+</body>
 </html>
